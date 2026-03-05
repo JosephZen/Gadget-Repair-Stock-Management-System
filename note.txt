@@ -1,0 +1,84 @@
+npm create vite@latest . -- --template react
+
+
+FMS
+|-.gitignore
+|- assets
+|  |-template
+|     |-template.docx
+|     |-template.xlsx
+|  |-docx
+|     |-test1.docx
+|  |-xlsx
+|     |-test1.xlsx
+|
+|- frontend
+|  |-node_modules
+|  |-public
+|     |-vite.svg
+|  |-src
+|     |-assets
+|         |-react.svg
+|     |-App.css
+|     |-App.jsx
+|     |-main.jsx
+|     |-index.css
+|  |-eslint.config.js
+|  |-index.html
+|  |-package.json(I don't know If I need this on my project since it looks like its duplicated so please correct me on this part)
+|  |-package-lock.js(same with this)
+|  |-.gitignore(also this if its not neccesary)
+|  |-postcss.config.js
+|  |-tailwind.config.js
+|  |-vite.config.js
+|- backend
+|  |-index.js
+|  |-.env
+|  |-package.json
+|  |-package-lock.json
+|  |-node_modules
+|  |-uploads
+|     |-profile-picture.jpg
+|     |-logo1.png
+|     |-logo2.png
+
+
+
+database:
+
+Component:
+
+id
+brand
+model
+condition (enum)
+description (varchar)
+image (attach)
+category
+attached_qr_code (null)
+
+Link:
+id
+name: iPhone 11
+description: LCD
+category (parts, tools, components [enum])
+Link_Store (1 or multiple)
+link_url (1 or multiple link)
+
+Camera Scanner (think dont need table)
+id
+scanned QR Code 
+component_id
+
+Print qr code:
+id
+print qr code (component)
+
+
+
+
+
+
+
+
+

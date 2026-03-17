@@ -1,6 +1,16 @@
 npm create vite@latest . -- --template react
 
 
+
+
+echo "# Gadget-Repair-Stock-Management-System" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/JosephZen/Gadget-Repair-Stock-Management-System.git
+git push -u origin main
+
 FMS
 |-.gitignore
 |- assets
@@ -73,9 +83,6 @@ component_id
 Print qr code:
 id
 print qr code (component)
-
-
-
 
 
 

@@ -24,21 +24,31 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        const { data } = await api.post('/auth/login', { email, password });
-        if (data.success) {
-            setUser(data.user);
-            return true;
+        try {
+            const { data } = await api.post('/auth/login', { email, password });
+            if (data.success) {
+                setUser(data.user);
+                return true;
+            }
+            return false;
+        } catch (err) {
+            console.error("Login failed:", err.response?.data?.message || err.message);
+            return false;
         }
-        return false;
     };
 
     const register = async (username, email, password) => {
-        const { data } = await api.post('/auth/register', { username, email, password });
-        if (data.success) {
-            setUser(data.user);
-            return true;
+        try {
+            const { data } = await api.post('/auth/register', { username, email, password });
+            if (data.success) {
+                setUser(data.user);
+                return true;
+            }
+            return false;
+        } catch (err) {
+            console.error("Registration failed:", err.response?.data?.message || err.message);
+            return false;
         }
-        return false;
     };
 
     const logout = async () => {

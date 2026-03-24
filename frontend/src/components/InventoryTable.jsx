@@ -2,10 +2,10 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Typography, IconButton, Box, Button
 } from '@mui/material';
-import { Delete as DeleteIcon, Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon, Add as AddIcon, Link as LinkIcon } from '@mui/icons-material';
 import GenerateQR from '../pages/GenerateQR';
 
-const InventoryTable = ({ inventory, onEdit, onDelete, onAdd }) => {
+const InventoryTable = ({ inventory, onEdit, onDelete, onAdd, onOpenLinks }) => {
     return (
         <Paper sx={{ p: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -38,6 +38,9 @@ const InventoryTable = ({ inventory, onEdit, onDelete, onAdd }) => {
                                     <Typography variant="h6" component="div">{item.stock_quantity}</Typography>
                                 </TableCell>
                                 <TableCell align="right">
+                                    <IconButton onClick={() => onOpenLinks(item)} color="info" title="Supplier Links">
+                                        <LinkIcon />
+                                    </IconButton>
                                     <GenerateQR componentId={item.id} componentName={`${item.brand} ${item.model}`} category={item.category} />
                                     <IconButton onClick={() => onEdit(item)} color="primary">
                                         <EditIcon />

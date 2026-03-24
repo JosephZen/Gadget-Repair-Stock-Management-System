@@ -4,6 +4,7 @@ import { Add as AddIcon, QrCodeScanner as QrCodeScannerIcon } from '@mui/icons-m
 import Scanner from './Scanner';
 import InventoryTable from '../components/InventoryTable';
 import AddPartForm from '../components/AddPartForm';
+import SupplierLinksDialog from '../components/SupplierLinksDialog';
 import api from '../services/api';
 
 const Dashboard = () => {
@@ -11,6 +12,8 @@ const Dashboard = () => {
     const [inventory, setInventory] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+    const [isLinksOpen, setIsLinksOpen] = useState(false);
+    const [linksItem, setLinksItem] = useState(null);
 
     const fetchInventory = async () => {
         try {
@@ -65,6 +68,11 @@ const Dashboard = () => {
         setIsFormOpen(true);
     };
 
+    const handleOpenLinks = (item) => {
+        setLinksItem(item);
+        setIsLinksOpen(true);
+    };
+
     return (
         <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
             <Box sx={{ width: '100%' }}>
@@ -81,6 +89,7 @@ const Dashboard = () => {
                             onEdit={openFormForEdit} 
                             onDelete={handleDelete} 
                             onAdd={openFormForAdd} 
+                            onOpenLinks={handleOpenLinks}
                         />
                     )}
                     {activeTab === 1 && <Scanner />}
@@ -91,6 +100,11 @@ const Dashboard = () => {
                 onClose={() => setIsFormOpen(false)} 
                 onSubmit={handleFormSubmit} 
                 initialData={editingItem} 
+            />
+            <SupplierLinksDialog 
+                isOpen={isLinksOpen} 
+                onClose={() => setIsLinksOpen(false)} 
+                component={linksItem} 
             />
         </Container>
     );

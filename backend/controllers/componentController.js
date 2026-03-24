@@ -64,3 +64,29 @@ export const deleteComponent = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
+
+export const addSupplierLink = async (req, res) => {
+    const { id } = req.params;
+    const { supplier_name, link_url } = req.body;
+    try {
+        const result = await pool.query(
+            'INSERT INTO supplier_links (component_id, supplier_name, link_url) VALUES ($1, $2, $3) RETURNING *',
+            [id, supplier_name, link_url]
+        );
+        res.status(201).json({ success: true, link: result.rows[0] });
+    } catch (err) {
+        console.error("Error adding supplier link:", err);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+export const deleteSupplierLink = async (req, res) => {
+    const { linkId } = req.params;
+    try {
+        await pool.query('DELETE FROM supplier_links WHERE id = $1', [linkId]);
+        res.status(200).json({ success: true, message: "Link deleted" });
+    } catch (err) {
+        console.error("Error deleting supplier link:", err);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};

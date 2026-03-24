@@ -1,0 +1,27 @@
+--- Extracted Neon Schema ---
+
+TABLE: components
+  - id: uuid 
+  - brand: character varying (100)
+  - model: character varying (100)
+  - category: character varying (50)
+  - condition: character varying (50)
+  - description: text 
+  - stock_quantity: integer 
+  - image_url: text 
+  - created_at: timestamp without time zone 
+  - updated_at: timestamp without time zone 
+
+TABLE: supplier_links
+  - id: integer 
+  - component_id: uuid 
+  - store_name: character varying (100)
+  - url: text 
+  - price: numeric 
+
+TABLE: users
+  - id: integer 
+  - username: character varying (100)
+  - email: character varying (255)
+  - password_hash: character varying (255)
+  - created_at: timestamp without time zone 

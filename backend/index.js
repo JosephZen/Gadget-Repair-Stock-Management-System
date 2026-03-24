@@ -18,27 +18,20 @@ const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
 // ✅ 2. CORS (CRITICAL FIX)
-// Old code allowed the Backend URL. New code allows Localhost (for dev) 
-// or strictly uses the FRONTEND_URL variable (for Vercel).
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "https://gadget-repair-stock-management-system-dyr9v53mb.vercel.app"
-    ];
-
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) === -1) {
-      // If the origin isn't in the list, check if it matches the ENV variable
-      if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+    if (
+        origin.startsWith("http://localhost:") ||
+        origin.endsWith("vercel.app") ||
+        (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL)
+    ) {
         return callback(null, true);
-      }
-      return callback(new Error('Not allowed by CORS'), false);
     }
-    return callback(null, true);
+    
+    return callback(new Error('Not allowed by CORS'), false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE']

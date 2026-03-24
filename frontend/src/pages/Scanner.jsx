@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import axios from 'axios';
+import { Box, Typography, CircularProgress, Button, Paper, Grid, Chip, Link, Snackbar, Alert, Container } from '@mui/material';
 
 function Scanner() {
     const [scannedId, setScannedId] = useState(null);
@@ -8,47 +9,56 @@ function Scanner() {
     const [links, setLinks] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [isScanning, setIsScanning] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const scannerRef = useRef(null);
+    const readerId = "qr-reader";
 
     useEffect(() => {
-        // 1. Initialize the Scanner
+        if (scannerRef.current) return;
+
         const scanner = new Html5QrcodeScanner(
-            "qr-reader", // This must match the ID of the div below
+            readerId,
             { fps: 10, qrbox: { width: 250, height: 250 } },
-            false // verbose mode
+            false
         );
 
-        // 2. Start Scanning
-        scanner.render(onScanSuccess, onScanError);
-
-        // 3. What happens when it successfully reads a QR Code
         function onScanSuccess(decodedText) {
-            scanner.clear(); // Immediately turn off the camera
+            if (isScanning) return; 
+            
+            scanner.pause();
+            setIsScanning(true);
+            setShowSuccess(true);
             setScannedId(decodedText);
             fetchComponentDetails(decodedText);
         }
 
-        // 4. What happens when it fails (it will fail 10 times a second until it sees a QR code)
         function onScanError(err) {
-            // We usually leave this empty so it doesn't spam the console
+            // This is noisy, so we'll keep it quiet.
         }
 
-        // 5. Cleanup function: Turn off the camera if the user navigates to another page
-        return () => {
-            scanner.clear().catch(error => console.error("Failed to clear scanner", error));
-        };
-    }, []);
+        scanner.render(onScanSuccess, onScanError);
+        scannerRef.current = scanner;
 
-    // Fetch the data from your Postgres Database via Render Backend
+        return () => {
+             // The library has some cleanup issues, this is the most reliable way.
+            if (scannerRef.current) {
+                scannerRef.current.clear().catch(error => console.error("Failed to clear scanner", error));
+                scannerRef.current = null;
+            }
+        };
+    }, [isScanning]);
+
     const fetchComponentDetails = async (id) => {
         setLoading(true);
         setError('');
         try {
-            // Make sure this matches your actual backend URL or local API
             const response = await axios.get(`http://localhost:3000/api/components/${id}`);
-            
             if (response.data.success) {
                 setComponentData(response.data.component);
                 setLinks(response.data.links || []);
+            } else {
+                setError("Component not found.");
             }
         } catch (err) {
             console.error(err);
@@ -58,109 +68,95 @@ function Scanner() {
         }
     };
 
-    // Reset scanner to scan another item
     const resetScanner = () => {
         setScannedId(null);
         setComponentData(null);
         setLinks([]);
         setError('');
-        // Reloading the page is the safest way to reset the camera cleanly in browsers
-        window.location.reload(); 
+        setIsScanning(false);
+        if (scannerRef.current) {
+           scannerRef.current.resume();
+        }
+    };
+
+    const handleSuccessClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setShowSuccess(false);
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-6">
-            <h1 className="text-3xl font-black text-gray-800 mb-6 text-center">Scan Part</h1>
+        <Container maxWidth="sm">
+            <Paper elevation={3} sx={{ p: 3, textAlign: 'center', mt: 4 }}>
+                <Typography variant="h4" gutterBottom>Scan Part</Typography>
 
-            {/* ERROR MESSAGE */}
-            {error && (
-                <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-4 text-center font-semibold">
-                    {error}
-                </div>
-            )}
+                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-            {/* SCANNER CAMERA VIEW */}
-            {!scannedId && (
-                <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-200">
-                    <div id="qr-reader" className="w-full"></div>
-                    <p className="text-center text-gray-500 mt-4 text-sm">
-                        Point your camera at the component's QR code
-                    </p>
-                </div>
-            )}
+                {!componentData && (
+                     <Box 
+                        id={readerId} 
+                        sx={{ 
+                            width: '100%', 
+                            border: showSuccess ? '5px solid #4caf50' : '5px solid transparent', 
+                            transition: 'border 0.3s ease-in-out',
+                            borderRadius: '4px',
+                            overflow: 'hidden',
+                            my: 2
+                        }} 
+                    />
+                )}
+                
+                <Snackbar open={showSuccess} autoHideDuration={3000} onClose={handleSuccessClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+                    <Alert onClose={handleSuccessClose} severity="success" sx={{ width: '100%' }}>
+                        Scan Successful! Looking up part...
+                    </Alert>
+                </Snackbar>
 
-            {/* LOADING STATE */}
-            {loading && (
-                <div className="text-center py-10">
-                    <p className="text-xl font-bold text-blue-600 animate-pulse">Searching Database...</p>
-                </div>
-            )}
+                {loading && <CircularProgress sx={{ mt: 2 }} />}
 
-            {/* SUCCESS: SHOW COMPONENT DATA */}
-            {componentData && !loading && (
-                <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 animate-fade-in">
-                    
-                    {/* Part Header */}
-                    <div className="flex justify-between items-start mb-6">
-                        <div>
-                            <h2 className="text-2xl font-bold text-gray-800">
-                                {componentData.brand} {componentData.model}
-                            </h2>
-                            <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-bold uppercase tracking-wider mt-1">
-                                {componentData.category}
-                            </span>
-                        </div>
-                        <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                            componentData.condition.includes('New') ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                        }`}>
-                            {componentData.condition}
-                        </span>
-                    </div>
+                {componentData && !loading && (
+                    <Box sx={{ mt: 3, textAlign: 'left', animation: 'fadeIn 0.5s' }}>
+                        <Grid container spacing={2} alignItems="center">
+                            <Grid item xs={8}>
+                                <Typography variant="h5">{componentData.brand} {componentData.model}</Typography>
+                                <Chip label={componentData.category} color="primary" size="small" />
+                            </Grid>
+                            <Grid item xs={4} sx={{ textAlign: 'right' }}>
+                                <Chip label={componentData.condition} color={componentData.condition.includes('New') ? 'success' : 'warning'} />
+                            </Grid>
+                        </Grid>
+                        
+                        <Box sx={{ my: 2 }}>
+                            <Typography><strong>Stock Available:</strong> {componentData.stock_quantity}</Typography>
+                            {componentData.description && <Typography><strong>Notes:</strong> {componentData.description}</Typography>}
+                            <Typography variant="caption" color="text.secondary">ID: {componentData.id}</Typography>
+                        </Box>
 
-                    {/* Part Details */}
-                    <div className="space-y-3 mb-6">
-                        <p className="text-gray-600">
-                            <strong className="text-gray-800">Stock Available:</strong> {componentData.stock_quantity}
-                        </p>
-                        {componentData.description && (
-                            <p className="text-gray-600">
-                                <strong className="text-gray-800">Notes:</strong> {componentData.description}
-                            </p>
-                        )}
-                        <p className="text-xs text-gray-400 font-mono mt-4">ID: {componentData.id}</p>
-                    </div>
-
-                    {/* Supplier Links Section */}
-                    {links.length > 0 && (
-                        <div className="border-t pt-4">
-                            <h3 className="text-lg font-bold text-gray-800 mb-3">Reorder Links</h3>
-                            <div className="space-y-2">
+                        {links.length > 0 && (
+                            <Box>
+                                <Typography variant="h6">Reorder Links</Typography>
                                 {links.map(link => (
-                                    <a 
-                                        key={link.id} 
-                                        href={link.url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="flex justify-between items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border"
-                                    >
-                                        <span className="font-semibold text-blue-600">{link.store_name}</span>
-                                        {link.price && <span className="text-gray-600 font-medium">${link.price}</span>}
-                                    </a>
+                                    <Link href={link.url} key={link.id} target="_blank" rel="noopener noreferrer" sx={{ display: 'block', my: 1 }}>
+                                        {link.store_name} {link.price && `- $${link.price}`}
+                                    </Link>
                                 ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Scan Again Button */}
-                    <button 
-                        onClick={resetScanner}
-                        className="w-full mt-8 bg-black text-white p-3 rounded-xl font-bold hover:bg-gray-800 transition-colors"
-                    >
-                        Scan Another Part
-                    </button>
-                </div>
-            )}
-        </div>
+                            </Box>
+                        )}
+                        
+                        <Button variant="contained" fullWidth onClick={resetScanner} sx={{ mt: 3 }}>
+                            Scan Another Part
+                        </Button>
+                    </Box>
+                )}
+            </Paper>
+            <style>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+            `}</style>
+        </Container>
     );
 }
 

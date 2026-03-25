@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import axios from 'axios';
 import { Box, Typography, CircularProgress, Button, Paper, Grid, Chip, Link, Snackbar, Alert, Container } from '@mui/material';
+import api from '../services/api';
 
 function Scanner() {
     const [scannedId, setScannedId] = useState(null);
@@ -19,7 +19,16 @@ function Scanner() {
 
         const scanner = new Html5QrcodeScanner(
             readerId,
-            { fps: 10, qrbox: { width: 250, height: 250 } },
+            { 
+                fps: 10, 
+                qrbox: (viewfinderWidth, viewfinderHeight) => {
+                    const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                    const qrboxSize = Math.floor(minEdge * 0.7);
+                    return { width: qrboxSize, height: qrboxSize };
+                },
+                rememberLastUsedCamera: true,
+                supportedScanTypes: [0] // 0 = Html5QrcodeScanType.SCAN_TYPE_CAMERA
+            },
             false
         );
 
@@ -53,7 +62,7 @@ function Scanner() {
         setLoading(true);
         setError('');
         try {
-            const response = await axios.get(`http://localhost:3000/api/components/${id}`);
+            const response = await api.get(`/components/${id}`);
             if (response.data.success) {
                 setComponentData(response.data.component);
                 setLinks(response.data.links || []);
@@ -137,8 +146,8 @@ function Scanner() {
                             <Box>
                                 <Typography variant="h6">Reorder Links</Typography>
                                 {links.map(link => (
-                                    <Link href={link.url} key={link.id} target="_blank" rel="noopener noreferrer" sx={{ display: 'block', my: 1 }}>
-                                        {link.store_name} {link.price && `- $${link.price}`}
+                                    <Link href={link.link_url} key={link.id} target="_blank" rel="noopener noreferrer" sx={{ display: 'block', my: 1 }}>
+                                        {link.supplier_name} {link.price && `- $${link.price}`}
                                     </Link>
                                 ))}
                             </Box>

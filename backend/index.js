@@ -39,6 +39,12 @@ app.use(cors({
 
 app.use(express.json());
 
+// ✅ Request Logging (DEBUG)
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
 // ✅ 3. SECURE COOKIES
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev_secret_key',

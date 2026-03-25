@@ -7,7 +7,7 @@ export const getComponentById = async (req, res) => {
         if (componentResult.rows.length === 0) {
             return res.status(404).json({ success: false, message: "Component not found" });
         }
-        const linksResult = await pool.query('SELECT * FROM supplier_links WHERE component_id = $1', [id]);
+        const linksResult = await pool.query('SELECT id, component_id, store_name AS supplier_name, url AS link_url, price FROM supplier_links WHERE component_id = $1', [id]);
         res.status(200).json({ success: true, component: componentResult.rows[0], links: linksResult.rows });
     } catch (err) {
         console.error("Error fetching component:", err);
@@ -70,7 +70,7 @@ export const addSupplierLink = async (req, res) => {
     const { supplier_name, link_url } = req.body;
     try {
         const result = await pool.query(
-            'INSERT INTO supplier_links (component_id, supplier_name, link_url) VALUES ($1, $2, $3) RETURNING *',
+            'INSERT INTO supplier_links (component_id, store_name, url) VALUES ($1, $2, $3) RETURNING id, component_id, store_name AS supplier_name, url AS link_url, price',
             [id, supplier_name, link_url]
         );
         res.status(201).json({ success: true, link: result.rows[0] });

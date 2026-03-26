@@ -9,7 +9,7 @@ function GenerateQR({ componentId, componentName, category }) {
     const [open, setOpen] = useState(false);
 
     const handlePrint = useReactToPrint({
-        content: () => qrRef.current,
+        contentRef: qrRef,
         documentTitle: `${componentName}-QR`,
     });
 

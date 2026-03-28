@@ -1,14 +1,19 @@
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { QrCodeScanner as QrCodeScannerIcon } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, Button, Box, IconButton } from '@mui/material';
+import { 
+    QrCodeScanner as QrCodeScannerIcon, 
+    Menu as MenuIcon 
+} from '@mui/icons-material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useScanner } from '../context/ScannerContext';
 import ScannerModal from './ScannerModal';
+import Sidebar from './Sidebar';
 
 const Navbar = () => {
     const { user, logout } = useContext(AuthContext);
     const { isScannerOpen, openScanner, closeScanner } = useScanner();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -20,6 +25,17 @@ const Navbar = () => {
         <>
             <AppBar position="static">
                 <Toolbar>
+                    {user && (
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            edge="start"
+                            onClick={() => setIsSidebarOpen(true)}
+                            sx={{ mr: 2 }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                    )}
                     <Typography variant="h6" component={RouterLink} to="/" sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
                         Repair Stock Management
                     </Typography>
@@ -58,6 +74,11 @@ const Navbar = () => {
             <ScannerModal 
                 open={isScannerOpen} 
                 onClose={closeScanner} 
+            />
+
+            <Sidebar 
+                open={isSidebarOpen} 
+                onClose={() => setIsSidebarOpen(false)} 
             />
         </>
     );

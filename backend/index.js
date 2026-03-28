@@ -7,6 +7,9 @@ import { Pool } from "pg";
 
 import authRoutes from './routes/authRoutes.js';
 import componentRoutes from './routes/componentRoutes.js';
+import solderingRoutes from './routes/solderingRoutes.js';
+import tutorialRoutes from './routes/tutorialRoutes.js';
+import folderRoutes from './routes/folderRoutes.js';
 import { isAuthenticated } from './middleware/authMiddleware.js';
 
 dotenv.config();        

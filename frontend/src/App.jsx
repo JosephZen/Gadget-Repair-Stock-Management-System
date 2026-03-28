@@ -10,6 +10,9 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import SolderingProjects from './pages/SolderingProjects';
+import VideoTutorials from './pages/VideoTutorials';
+import ProjectFolders from './pages/ProjectFolders';
 
 const ProtectedRoute = ({ children }) => {
     const { user, loading } = useContext(AuthContext);
@@ -31,6 +34,30 @@ function AppContent() {
                     element={
                         <ProtectedRoute>
                             <Dashboard />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/soldering" 
+                    element={
+                        <ProtectedRoute>
+                            <SolderingProjects />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/tutorials" 
+                    element={
+                        <ProtectedRoute>
+                            <VideoTutorials />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/folders" 
+                    element={
+                        <ProtectedRoute>
+                            <ProjectFolders />
                         </ProtectedRoute>
                     } 
                 />

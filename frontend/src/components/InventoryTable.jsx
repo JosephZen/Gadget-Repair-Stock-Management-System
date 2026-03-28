@@ -14,16 +14,8 @@ import GenerateQR from '../pages/GenerateQR';
 const InventoryTable = ({ inventory, onEdit, onDelete, onAdd, onOpenLinks, onScan }) => {
     return (
         <Paper sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ mb: 2 }}>
                 <Typography variant="h5">Current Stock</Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button variant="outlined" startIcon={<QrCodeScannerIcon />} onClick={onScan}>
-                        Scan Part
-                    </Button>
-                    <Button variant="contained" startIcon={<AddIcon />} onClick={onAdd}>
-                        Add New Part
-                    </Button>
-                </Box>
             </Box>
             <TableContainer>
                 <Table>

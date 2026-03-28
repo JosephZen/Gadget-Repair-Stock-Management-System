@@ -3,14 +3,16 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { 
     Dialog, DialogContent, DialogTitle, Box, Typography, 
     CircularProgress, Button, Paper, Grid, Chip, 
-    IconButton, Fade, useTheme, Zoom, alpha, Divider
+    IconButton, Fade, useTheme, Zoom, alpha, Divider,
+    Select, MenuItem, FormControl, InputLabel
 } from '@mui/material';
 import { 
     Close as CloseIcon, 
     QrCodeScanner as ScannerIcon,
     Inventory as InventoryIcon,
     Refresh as RefreshIcon,
-    ErrorOutline as ErrorIcon
+    ErrorOutline as ErrorIcon,
+    CameraAlt as CameraIcon
 } from '@mui/icons-material';
 import { grey } from '@mui/material/colors';
 import api from '../services/api';
@@ -22,6 +24,8 @@ const ScannerModal = ({ open, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [cameraReady, setCameraReady] = useState(false);
+    const [cameras, setCameras] = useState([]);
+    const [selectedCameraId, setSelectedCameraId] = useState('');
     const scannerRef = useRef(null);
     const containerId = "qr-reader-modal";
 
@@ -42,7 +46,7 @@ const ScannerModal = ({ open, onClose }) => {
         };
     }, [open]);
 
-    const handleStart = async () => {
+    const handleStart = async (deviceIdToUse = null) => {
         try {
             setError('');
             setCameraReady(false);
@@ -55,13 +59,31 @@ const ScannerModal = ({ open, onClose }) => {
             const html5QrCode = new Html5Qrcode(containerId);
             scannerRef.current = html5QrCode;
 
+            // Fetch available cameras if we haven't already
+            if (cameras.length === 0) {
+                try {
+                    const devices = await Html5Qrcode.getCameras();
+                    if (devices && devices.length > 0) {
+                        setCameras(devices);
+                        // Default to environment if not explicitly set
+                        if (!selectedCameraId) {
+                            setSelectedCameraId(devices[0].id);
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Failed to get cameras list", err);
+                }
+            }
+
             const config = { 
                 fps: 10, 
                 qrbox: { width: 250, height: 250 } 
             };
 
+            const cameraParam = deviceIdToUse || selectedCameraId || { facingMode: "environment" };
+
             await html5QrCode.start(
-                { facingMode: "environment" }, 
+                cameraParam, 
                 config, 
                 onScanSuccess
             );
@@ -71,6 +93,13 @@ const ScannerModal = ({ open, onClose }) => {
             console.error("Camera Start Error:", err);
             setError("Could not access camera. Please check permissions.");
         }
+    };
+
+    const handleCameraChange = async (event) => {
+        const newDeviceId = event.target.value;
+        setSelectedCameraId(newDeviceId);
+        await handleStop();
+        handleStart(newDeviceId);
     };
 
     const handleStop = async () => {
@@ -152,10 +181,32 @@ const ScannerModal = ({ open, onClose }) => {
                 </IconButton>
             </DialogTitle>
 
-            <DialogContent sx={{ p: 0, position: 'relative', minHeight: 400, bgcolor: '#f5f5f5' }}>
+            <DialogContent sx={{ p: 0, position: 'relative', minHeight: 400, bgcolor: '#f5f5f5', display: 'flex', flexDirection: 'column' }}>
+                {/* Camera Selection Dropdown */}
+                {!scannedId && cameras.length > 1 && (
+                    <Box sx={{ p: 2, bgcolor: 'white', borderBottom: '1px solid', borderColor: 'divider' }}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="camera-select-label">Switch Camera</InputLabel>
+                            <Select
+                                labelId="camera-select-label"
+                                value={selectedCameraId}
+                                label="Switch Camera"
+                                onChange={handleCameraChange}
+                                startIcon={<CameraIcon />}
+                            >
+                                {cameras.map((camera) => (
+                                    <MenuItem key={camera.id} value={camera.id}>
+                                        {camera.label || `Camera ${camera.id}`}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
+                )}
+
                 {/* Scanner Viewport */}
                 {!scannedId && (
-                    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+                    <Box sx={{ position: 'relative', flex: 1, width: '100%', minHeight: 300 }}>
                          <Box 
                             id={containerId} 
                             sx={{ 

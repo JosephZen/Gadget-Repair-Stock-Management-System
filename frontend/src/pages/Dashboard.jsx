@@ -101,9 +101,7 @@ const Dashboard = () => {
                 inventory={inventory} 
                 onEdit={openFormForEdit} 
                 onDelete={handleDelete} 
-                onAdd={openFormForAdd} 
                 onOpenLinks={handleOpenLinks}
-                onScan={openScanner}
             />
 
             <AddPartForm 

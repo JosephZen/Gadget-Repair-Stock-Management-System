@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Box, Container, Tabs, Tab } from '@mui/material';
+import { Box, Container, Typography, Button, Stack } from '@mui/material';
 import { Add as AddIcon, QrCodeScanner as QrCodeScannerIcon } from '@mui/icons-material';
-import Scanner from './Scanner';
 import InventoryTable from '../components/InventoryTable';
 import AddPartForm from '../components/AddPartForm';
 import SupplierLinksDialog from '../components/SupplierLinksDialog';
+import { useScanner } from '../context/ScannerContext';
 import api from '../services/api';
 
 const Dashboard = () => {
-    const [activeTab, setActiveTab] = useState(0);
     const [inventory, setInventory] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [isLinksOpen, setIsLinksOpen] = useState(false);
     const [linksItem, setLinksItem] = useState(null);
+    const { openScanner } = useScanner();
 
     const fetchInventory = async () => {
         try {
@@ -32,10 +32,8 @@ const Dashboard = () => {
         try {
             if (editingItem) {
                 await api.put(`/components/${editingItem.id}`, formData);
-                alert('Part updated successfully!');
             } else {
                 await api.post('/components', formData);
-                alert('Part added successfully!');
             }
             setIsFormOpen(false);
             setEditingItem(null);
@@ -74,33 +72,47 @@ const Dashboard = () => {
     };
 
     return (
-        <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
-            <Box sx={{ width: '100%' }}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)} centered>
-                        <Tab label="Inventory" icon={<AddIcon />} iconPosition="start" />
-                        <Tab label="Scan QR" icon={<QrCodeScannerIcon />} iconPosition="start" />
-                    </Tabs>
-                </Box>
-                <Box sx={{ p: 3, mt: 2 }}>
-                    {activeTab === 0 && (
-                        <InventoryTable 
-                            inventory={inventory} 
-                            onEdit={openFormForEdit} 
-                            onDelete={handleDelete} 
-                            onAdd={openFormForAdd} 
-                            onOpenLinks={handleOpenLinks}
-                        />
-                    )}
-                    {activeTab === 1 && <Scanner />}
-                </Box>
+        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                    Gadget Repair Stock
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                    <Button 
+                        variant="outlined" 
+                        startIcon={<QrCodeScannerIcon />} 
+                        onClick={openScanner}
+                        sx={{ borderRadius: 2 }}
+                    >
+                        Scan QR Code
+                    </Button>
+                    <Button 
+                        variant="contained" 
+                        startIcon={<AddIcon />} 
+                        onClick={openFormForAdd}
+                        sx={{ borderRadius: 2 }}
+                    >
+                        Add New Part
+                    </Button>
+                </Stack>
             </Box>
+
+            <InventoryTable 
+                inventory={inventory} 
+                onEdit={openFormForEdit} 
+                onDelete={handleDelete} 
+                onAdd={openFormForAdd} 
+                onOpenLinks={handleOpenLinks}
+                onScan={openScanner}
+            />
+
             <AddPartForm 
                 isOpen={isFormOpen} 
                 onClose={() => setIsFormOpen(false)} 
                 onSubmit={handleFormSubmit} 
                 initialData={editingItem} 
             />
+            
             <SupplierLinksDialog 
                 isOpen={isLinksOpen} 
                 onClose={() => setIsLinksOpen(false)} 

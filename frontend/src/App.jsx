@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthProvider, AuthContext } from './context/AuthContext';
+import { ScannerProvider } from './context/ScannerContext';
 import CssBaseline from '@mui/material/CssBaseline';
 
 // Components & Pages
@@ -49,9 +50,11 @@ function AppContent() {
 function App() {
     return (
         <AuthProvider>
-            <Router>
-                <AppContent />
-            </Router>
+            <ScannerProvider>
+                <Router>
+                    <AppContent />
+                </Router>
+            </ScannerProvider>
         </AuthProvider>
     );
 }

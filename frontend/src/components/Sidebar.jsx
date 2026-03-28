@@ -23,14 +23,18 @@ const Sidebar = ({ open, onClose }) => {
         { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
         { text: 'Profile', icon: <ProfileIcon />, path: '/profile' },
         { divider: true },
-        { text: 'Soldering Projects', icon: <SolderingIcon />, path: '/soldering' },
-        { text: 'Video Tutorials', icon: <VideoIcon />, path: '/tutorials' },
-        { text: 'Project Folders', icon: <FolderIcon />, path: '/folders' },
+        { text: 'Soldering Projects', icon: <SolderingIcon />, path: '/soldering', future: true },
+        { text: 'Video Tutorials', icon: <VideoIcon />, path: '/tutorials', future: true },
+        { text: 'Project Folders', icon: <FolderIcon />, path: '/folders', future: true },
     ];
 
-    const handleNavigation = (path) => {
-        navigate(path);
-        onClose();
+    const handleNavigation = (path, future) => {
+        if (future) {
+            alert('This module is coming soon in a future update!');
+        } else {
+            navigate(path);
+            onClose();
+        }
     };
 
     return (
@@ -70,7 +74,7 @@ const Sidebar = ({ open, onClose }) => {
                     ) : (
                         <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
                             <ListItemButton 
-                                onClick={() => handleNavigation(item.path)}
+                                onClick={() => handleNavigation(item.path, item.future)}
                                 selected={location.pathname === item.path}
                                 sx={{
                                     borderRadius: 2,
@@ -99,6 +103,18 @@ const Sidebar = ({ open, onClose }) => {
                                         variant: 'body2'
                                     }}
                                 />
+                                {item.future && (
+                                    <Typography variant="caption" sx={{ 
+                                        color: 'text.secondary', 
+                                        fontStyle: 'italic',
+                                        fontSize: '0.65rem',
+                                        bgcolor: grey[100],
+                                        px: 0.5,
+                                        borderRadius: 0.5
+                                    }}>
+                                        Soon
+                                    </Typography>
+                                )}
                             </ListItemButton>
                         </ListItem>
                     )

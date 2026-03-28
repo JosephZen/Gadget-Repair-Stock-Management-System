@@ -67,48 +67,62 @@ const SolderingProjects = () => {
                 </Typography>
             </Box>
 
-            <Grid container spacing={3}>
-                {projects.map((project) => (
-                    <Grid item key={project.id} xs={12} sm={6} md={4}>
-                        <Card sx={{ 
-                            height: '100%', display: 'flex', flexDirection: 'column', 
-                            borderRadius: 3, overflow: 'hidden', transition: '0.3s',
-                            '&:hover': { transform: 'translateY(-5px)', boxShadow: theme.shadows[10] }
-                        }}>
-                            {project.image_url ? (
-                                <CardMedia component="img" height="200" image={project.image_url} alt={project.title} />
-                            ) : (
-                                <Box sx={{ height: 200, bgcolor: grey[200], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <ImageIcon sx={{ fontSize: 60, color: grey[400] }} />
-                                </Box>
-                            )}
-                            <CardContent sx={{ flexGrow: 1 }}>
-                                <Typography gutterBottom variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
-                                    {project.title}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                    {project.description}
-                                </Typography>
-                                <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Button 
-                                        variant="outlined" 
-                                        size="small" 
-                                        startIcon={<OpenIcon />}
-                                        href={project.drive_link}
-                                        target="_blank"
-                                        disabled={!project.drive_link}
-                                    >
-                                        Google Drive
-                                    </Button>
-                                    <IconButton size="small" color="error" onClick={() => handleDelete(project.id)}>
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </Box>
-                            </CardContent>
-                        </Card>
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <>
+                    <Grid container spacing={3}>
+                        {projects.map((project) => (
+                            <Grid item key={project.id} xs={12} sm={6} md={4}>
+                                <Card sx={{ 
+                                    height: '100%', display: 'flex', flexDirection: 'column', 
+                                    borderRadius: 3, overflow: 'hidden', transition: '0.3s',
+                                    '&:hover': { transform: 'translateY(-5px)', boxShadow: theme.shadows[10] }
+                                }}>
+                                    {project.image_url ? (
+                                        <CardMedia component="img" height="200" image={project.image_url} alt={project.title} />
+                                    ) : (
+                                        <Box sx={{ height: 200, bgcolor: grey[200], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <ImageIcon sx={{ fontSize: 60, color: grey[400] }} />
+                                        </Box>
+                                    )}
+                                    <CardContent sx={{ flexGrow: 1 }}>
+                                        <Typography gutterBottom variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
+                                            {project.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                            {project.description}
+                                        </Typography>
+                                        <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Button 
+                                                variant="outlined" 
+                                                size="small" 
+                                                startIcon={<OpenIcon />}
+                                                href={project.drive_link}
+                                                target="_blank"
+                                                disabled={!project.drive_link}
+                                            >
+                                                Google Drive
+                                            </Button>
+                                            <IconButton size="small" color="error" onClick={() => handleDelete(project.id)}>
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        ))}
                     </Grid>
-                ))}
-            </Grid>
+
+                    {projects.length === 0 && (
+                        <Box sx={{ textAlign: 'center', mt: 8, opacity: 0.5 }}>
+                            <Typography variant="h6">No projects added yet.</Typography>
+                        </Box>
+                    )}
+                </>
+            )}
 
             <Fab 
                 color="primary" 

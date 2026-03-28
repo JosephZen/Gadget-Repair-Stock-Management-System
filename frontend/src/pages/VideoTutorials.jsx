@@ -21,6 +21,7 @@ import api from '../services/api';
 const VideoTutorials = () => {
     const theme = useTheme();
     const [tutorials, setTutorials] = useState({});
+    const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
     const [openCategories, setOpenCategories] = useState({});
     const [formData, setFormData] = useState({ title: '', url: '', category: 'General' });
@@ -30,12 +31,13 @@ const VideoTutorials = () => {
     }, []);
 
     const fetchTutorials = async () => {
+        setLoading(true);
         try {
             const res = await api.get('/tutorials');
-            if (res.data.success) {
+            if (res.data.success && res.data.tutorials) {
                 // Group by category
                 const grouped = res.data.tutorials.reduce((acc, obj) => {
-                    const key = obj.category;
+                    const key = obj.category || 'Uncategorized';
                     if (!acc[key]) acc[key] = [];
                     acc[key].push(obj);
                     return acc;
@@ -46,9 +48,14 @@ const VideoTutorials = () => {
                 const catOpen = {};
                 Object.keys(grouped).forEach(k => catOpen[k] = true);
                 setOpenCategories(catOpen);
+            } else {
+                setTutorials({});
             }
         } catch (err) {
-            console.error(err);
+            console.error("Error fetching tutorials:", err);
+            setTutorials({});
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -89,57 +96,65 @@ const VideoTutorials = () => {
                 </Typography>
             </Box>
 
-            {Object.keys(tutorials).map(category => (
-                <Paper key={category} sx={{ mb: 3, borderRadius: 2, overflow: 'hidden' }} elevation={0} variant="outlined">
-                    <ListItem button onClick={() => toggleCategory(category)} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
-                        <ListItemIcon>
-                            <CategoryIcon color="primary" />
-                        </ListItemIcon>
-                        <ListItemText 
-                            primary={category} 
-                            primaryTypographyProps={{ fontWeight: 'bold', fontSize: '1.2rem' }} 
-                        />
-                        {openCategories[category] ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem>
-                    <Collapse in={openCategories[category]} timeout="auto" unmountOnExit>
-                        <List component="div" disablePadding sx={{ bgcolor: 'white' }}>
-                            {tutorials[category].map((tutorial) => (
-                                <ListItem 
-                                    key={tutorial.id} 
-                                    sx={{ 
-                                        pl: 4, 
-                                        borderBottom: '1px solid', 
-                                        borderColor: 'divider',
-                                        '&:hover': { bgcolor: alpha(theme.palette.action.hover, 0.02) }
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <YoutubeIcon color="error" />
-                                    </ListItemIcon>
-                                    <ListItemText 
-                                        primary={tutorial.title} 
-                                        secondary={tutorial.url} 
-                                        primaryTypographyProps={{ fontWeight: 'medium' }}
-                                    />
-                                    <Box>
-                                        <IconButton color="primary" href={tutorial.url} target="_blank">
-                                            <LinkIcon />
-                                        </IconButton>
-                                        <IconButton color="error" onClick={() => handleDelete(tutorial.id)}>
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    </Box>
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Collapse>
-                </Paper>
-            ))}
-
-            {Object.keys(tutorials).length === 0 && (
-                <Box sx={{ textAlign: 'center', mt: 8, opacity: 0.5 }}>
-                    <Typography variant="h6">No tutorials added yet.</Typography>
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
+                    <CircularProgress />
                 </Box>
+            ) : (
+                <>
+                    {Object.keys(tutorials).map(category => (
+                        <Paper key={category} sx={{ mb: 3, borderRadius: 2, overflow: 'hidden' }} elevation={0} variant="outlined">
+                            <ListItem button onClick={() => toggleCategory(category)} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+                                <ListItemIcon>
+                                    <CategoryIcon color="primary" />
+                                </ListItemIcon>
+                                <ListItemText 
+                                    primary={category} 
+                                    primaryTypographyProps={{ fontWeight: 'bold', fontSize: '1.2rem' }} 
+                                />
+                                {openCategories[category] ? <ExpandLess /> : <ExpandMore />}
+                            </ListItem>
+                            <Collapse in={openCategories[category]} timeout="auto" unmountOnExit>
+                                <List component="div" disablePadding sx={{ bgcolor: 'white' }}>
+                                    {tutorials[category].map((tutorial) => (
+                                        <ListItem 
+                                            key={tutorial.id} 
+                                            sx={{ 
+                                                pl: 4, 
+                                                borderBottom: '1px solid', 
+                                                borderColor: 'divider',
+                                                '&:hover': { bgcolor: alpha(theme.palette.action.hover, 0.02) }
+                                            }}
+                                        >
+                                            <ListItemIcon>
+                                                <YoutubeIcon color="error" />
+                                            </ListItemIcon>
+                                            <ListItemText 
+                                                primary={tutorial.title} 
+                                                secondary={tutorial.url} 
+                                                primaryTypographyProps={{ fontWeight: 'medium' }}
+                                            />
+                                            <Box>
+                                                <IconButton color="primary" href={tutorial.url} target="_blank">
+                                                    <LinkIcon />
+                                                </IconButton>
+                                                <IconButton color="error" onClick={() => handleDelete(tutorial.id)}>
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </Box>
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </Collapse>
+                        </Paper>
+                    ))}
+
+                    {Object.keys(tutorials).length === 0 && (
+                        <Box sx={{ textAlign: 'center', mt: 8, opacity: 0.5 }}>
+                            <Typography variant="h6">No tutorials added yet.</Typography>
+                        </Box>
+                    )}
+                </>
             )}
 
             <Fab 

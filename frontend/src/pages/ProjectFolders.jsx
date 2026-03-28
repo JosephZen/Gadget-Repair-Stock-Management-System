@@ -113,54 +113,62 @@ const ProjectFolders = () => {
                 </Breadcrumbs>
             </Paper>
 
-            <Grid container spacing={2}>
-                {folders.map((item) => (
-                    <Grid item key={item.id} xs={12} sm={6} md={3}>
-                        <Card sx={{ 
-                            borderRadius: 2, 
-                            border: '1px solid', 
-                            borderColor: 'divider',
-                            transition: '0.2s',
-                            boxShadow: 'none',
-                            '&:hover': { 
-                                borderColor: 'primary.main', 
-                                bgcolor: alpha(theme.palette.primary.main, 0.02),
-                                cursor: 'pointer'
-                            }
-                        }} onClick={() => isFolder(item) ? handleFolderClick(item.id, item.name) : window.open(item.link_url, '_blank')}>
-                            <CardContent sx={{ display: 'flex', alignItems: 'center', p: '16px !important' }}>
-                                <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
-                                    {isFolder(item) ? (
-                                        <FolderIcon sx={{ fontSize: 40, color: blue[400] }} />
-                                    ) : (
-                                        <LinkIcon sx={{ fontSize: 40, color: 'success.main' }} />
-                                    )}
-                                </Box>
-                                <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                                    <Typography variant="body1" noWrap sx={{ fontWeight: 'bold' }}>
-                                        {item.name}
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary">
-                                        {isFolder(item) ? 'Folder' : 'Link'}
-                                    </Typography>
-                                </Box>
-                                <IconButton 
-                                    size="small" 
-                                    onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
-                                    sx={{ '&:hover': { color: 'error.main' } }}
-                                >
-                                    <DeleteIcon fontSize="small" />
-                                </IconButton>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
-
-            {folders.length === 0 && (
-                <Box sx={{ textAlign: 'center', mt: 8, opacity: 0.5 }}>
-                    <Typography variant="h6">This folder is empty.</Typography>
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
+                    <CircularProgress />
                 </Box>
+            ) : (
+                <>
+                    <Grid container spacing={2}>
+                        {folders.map((item) => (
+                            <Grid item key={item.id} xs={12} sm={6} md={3}>
+                                <Card sx={{ 
+                                    borderRadius: 2, 
+                                    border: '1px solid', 
+                                    borderColor: 'divider',
+                                    transition: '0.2s',
+                                    boxShadow: 'none',
+                                    '&:hover': { 
+                                        borderColor: 'primary.main', 
+                                        bgcolor: alpha(theme.palette.primary.main, 0.02),
+                                        cursor: 'pointer'
+                                    }
+                                }} onClick={() => isFolder(item) ? handleFolderClick(item.id, item.name) : window.open(item.link_url, '_blank')}>
+                                    <CardContent sx={{ display: 'flex', alignItems: 'center', p: '16px !important' }}>
+                                        <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
+                                            {isFolder(item) ? (
+                                                <FolderIcon sx={{ fontSize: 40, color: blue[400] }} />
+                                            ) : (
+                                                <LinkIcon sx={{ fontSize: 40, color: 'success.main' }} />
+                                            )}
+                                        </Box>
+                                        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                                            <Typography variant="body1" noWrap sx={{ fontWeight: 'bold' }}>
+                                                {item.name}
+                                            </Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                {isFolder(item) ? 'Folder' : 'Link'}
+                                            </Typography>
+                                        </Box>
+                                        <IconButton 
+                                            size="small" 
+                                            onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
+                                            sx={{ '&:hover': { color: 'error.main' } }}
+                                        >
+                                            <DeleteIcon fontSize="small" />
+                                        </IconButton>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+
+                    {folders.length === 0 && (
+                        <Box sx={{ textAlign: 'center', mt: 8, opacity: 0.5 }}>
+                            <Typography variant="h6">This folder is empty.</Typography>
+                        </Box>
+                    )}
+                </>
             )}
 
             <Box sx={{ position: 'fixed', bottom: 32, right: 32, display: 'flex', flexDirection: 'column', gap: 2 }}>

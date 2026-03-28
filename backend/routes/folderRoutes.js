@@ -1,12 +1,12 @@
 import express from 'express';
 import { getFolders, createFolder, updateFolder, deleteFolder } from '../controllers/folderController.js';
-import { authenticateToken } from '../middleware/authMiddleware.js';
+import { isAuthenticated } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/', authenticateToken, getFolders);
-router.post('/', authenticateToken, createFolder);
-router.put('/:id', authenticateToken, updateFolder);
-router.delete('/:id', authenticateToken, deleteFolder);
+router.get('/', isAuthenticated, getFolders);
+router.post('/', isAuthenticated, createFolder);
+router.put('/:id', isAuthenticated, updateFolder);
+router.delete('/:id', isAuthenticated, deleteFolder);
 
 export default router;

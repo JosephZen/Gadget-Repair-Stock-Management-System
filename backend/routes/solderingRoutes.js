@@ -1,11 +1,11 @@
 import express from 'express';
 import { getSolderingProjects, addSolderingProject, deleteSolderingProject } from '../controllers/solderingController.js';
-import { authenticateToken } from '../middleware/authMiddleware.js';
+import { isAuthenticated } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/', authenticateToken, getSolderingProjects);
-router.post('/', authenticateToken, addSolderingProject);
-router.delete('/:id', authenticateToken, deleteSolderingProject);
+router.get('/', isAuthenticated, getSolderingProjects);
+router.post('/', isAuthenticated, addSolderingProject);
+router.delete('/:id', isAuthenticated, deleteSolderingProject);
 
 export default router;

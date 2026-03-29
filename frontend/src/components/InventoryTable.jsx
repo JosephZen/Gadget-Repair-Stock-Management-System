@@ -1,30 +1,57 @@
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    Typography, IconButton, Box, Button
+    Typography, IconButton, Box, TableSortLabel
 } from '@mui/material';
 import { 
     Delete as DeleteIcon, 
     Edit as EditIcon, 
-    Add as AddIcon, 
-    Link as LinkIcon,
-    QrCodeScanner as QrCodeScannerIcon 
+    Link as LinkIcon 
 } from '@mui/icons-material';
 import GenerateQR from '../pages/GenerateQR';
 
-const InventoryTable = ({ inventory, onEdit, onDelete, onAdd, onOpenLinks, onScan }) => {
+const InventoryTable = ({ inventory, sortField, sortOrder, onSort, onEdit, onDelete, onOpenLinks }) => {
     return (
-        <Paper sx={{ p: 2 }}>
-            <Box sx={{ mb: 2 }}>
-                <Typography variant="h5">Current Stock</Typography>
-            </Box>
+        <Paper sx={{ p: 2, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
             <TableContainer>
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Component</TableCell>
-                            <TableCell>Category</TableCell>
-                            <TableCell>Condition</TableCell>
-                            <TableCell>Stock</TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortField === 'brand' || sortField === 'model'}
+                                    direction={sortField === 'brand' || sortField === 'model' ? sortOrder : 'asc'}
+                                    onClick={() => onSort('brand')}
+                                >
+                                    Component (Brand & Model)
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortField === 'category'}
+                                    direction={sortField === 'category' ? sortOrder : 'asc'}
+                                    onClick={() => onSort('category')}
+                                >
+                                    Category
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortField === 'condition'}
+                                    direction={sortField === 'condition' ? sortOrder : 'asc'}
+                                    onClick={() => onSort('condition')}
+                                >
+                                    Condition
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortField === 'stock_quantity'}
+                                    direction={sortField === 'stock_quantity' ? sortOrder : 'asc'}
+                                    onClick={() => onSort('stock_quantity')}
+                                >
+                                    Stock
+                                </TableSortLabel>
+                            </TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>

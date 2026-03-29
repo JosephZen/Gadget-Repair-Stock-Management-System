@@ -1,0 +1,27 @@
+[
+  {
+    "column_name": "id",
+    "is_nullable": "NO",
+    "data_type": "integer"
+  },
+  {
+    "column_name": "component_id",
+    "is_nullable": "YES",
+    "data_type": "uuid"
+  },
+  {
+    "column_name": "price",
+    "is_nullable": "YES",
+    "data_type": "numeric"
+  },
+  {
+    "column_name": "store_name",
+    "is_nullable": "NO",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "url",
+    "is_nullable": "NO",
+    "data_type": "text"
+  }
+]

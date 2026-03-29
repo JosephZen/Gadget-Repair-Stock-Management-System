@@ -46,39 +46,44 @@ const AddPartForm = ({ isOpen, onClose, onSubmit, initialData }) => {
             maxWidth="sm" 
             fullWidth
             PaperProps={{
-                sx: { borderRadius: 3, overflow: 'hidden' }
+                sx: { borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }
             }}
         >
             <DialogTitle sx={{ 
-                m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                bgcolor: 'primary.main', color: 'white'
+                m: 0, p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`, 
+                color: 'white'
             }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <AddIcon />
-                    <Typography variant="h6">{initialData ? 'Edit Component' : 'Add New Component'}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <InventoryIcon fontSize="medium" />
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {initialData ? 'Update Component' : 'New Component Entry'}
+                    </Typography>
                 </Box>
-                <IconButton onClick={onClose} sx={{ color: 'white' }}>
+                <IconButton onClick={onClose} sx={{ color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}>
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
 
             <form onSubmit={handleSubmit}>
-                <DialogContent sx={{ p: 3, bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
-                    <Grid container spacing={2.5}>
+                <DialogContent sx={{ p: 4, bgcolor: '#fafafa' }}>
+                    <Grid container spacing={3}>
                         <Grid item xs={12} sm={6}>
                             <TextField 
                                 fullWidth 
                                 label="Brand" 
                                 name="brand" 
+                                variant="outlined"
                                 value={formData.brand} 
                                 onChange={e => setFormData({ ...formData, brand: e.target.value })} 
                                 required 
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <BrandIcon color="action" fontSize="small" />
+                                            <BrandIcon color="primary" fontSize="small" />
                                         </InputAdornment>
                                     ),
+                                    sx: { borderRadius: '12px', bgcolor: 'white' }
                                 }}
                             />
                         </Grid>
@@ -87,30 +92,33 @@ const AddPartForm = ({ isOpen, onClose, onSubmit, initialData }) => {
                                 fullWidth 
                                 label="Model" 
                                 name="model" 
+                                variant="outlined"
                                 value={formData.model} 
                                 onChange={e => setFormData({ ...formData, model: e.target.value })} 
                                 required 
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <ModelIcon color="action" fontSize="small" />
+                                            <ModelIcon color="primary" fontSize="small" />
                                         </InputAdornment>
                                     ),
+                                    sx: { borderRadius: '12px', bgcolor: 'white' }
                                 }}
                             />
                         </Grid>
                         
                         <Grid item xs={12} sm={6}>
-                            <FormControl fullWidth>
+                            <FormControl fullWidth variant="outlined">
                                 <InputLabel>Category</InputLabel>
                                 <Select 
                                     name="category" 
                                     label="Category" 
                                     value={formData.category} 
                                     onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                    sx={{ borderRadius: '12px', bgcolor: 'white' }}
                                     startAdornment={(
                                         <InputAdornment position="start" sx={{ ml: 1 }}>
-                                            <CategoryIcon color="action" fontSize="small" />
+                                            <CategoryIcon color="primary" fontSize="small" />
                                         </InputAdornment>
                                     )}
                                 >
@@ -125,16 +133,17 @@ const AddPartForm = ({ isOpen, onClose, onSubmit, initialData }) => {
                         </Grid>
                         
                         <Grid item xs={12} sm={6}>
-                            <FormControl fullWidth>
+                            <FormControl fullWidth variant="outlined">
                                 <InputLabel>Condition</InputLabel>
                                 <Select 
                                     name="condition" 
                                     label="Condition" 
                                     value={formData.condition} 
                                     onChange={e => setFormData({ ...formData, condition: e.target.value })}
+                                    sx={{ borderRadius: '12px', bgcolor: 'white' }}
                                     startAdornment={(
                                         <InputAdornment position="start" sx={{ ml: 1 }}>
-                                            <ConditionIcon color="action" fontSize="small" />
+                                            <ConditionIcon color="primary" fontSize="small" />
                                         </InputAdornment>
                                     )}
                                 >
@@ -152,15 +161,17 @@ const AddPartForm = ({ isOpen, onClose, onSubmit, initialData }) => {
                                 label="Stock Quantity" 
                                 name="stock_quantity" 
                                 type="number" 
+                                variant="outlined"
                                 value={formData.stock_quantity} 
                                 onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })} 
                                 required 
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <InventoryIcon color="action" fontSize="small" />
+                                            <InventoryIcon color="primary" fontSize="small" />
                                         </InputAdornment>
                                     ),
+                                    sx: { borderRadius: '12px', bgcolor: 'white' }
                                 }}
                             />
                         </Grid>
@@ -172,28 +183,42 @@ const AddPartForm = ({ isOpen, onClose, onSubmit, initialData }) => {
                                 rows={3} 
                                 label="Description / Notes" 
                                 name="description" 
+                                variant="outlined"
                                 value={formData.description} 
                                 onChange={e => setFormData({ ...formData, description: e.target.value })} 
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start" sx={{ mt: 1, alignSelf: 'flex-start' }}>
-                                            <DescriptionIcon color="action" fontSize="small" />
+                                            <DescriptionIcon color="primary" fontSize="small" />
                                         </InputAdornment>
                                     ),
+                                    sx: { borderRadius: '12px', bgcolor: 'white' }
                                 }}
                             />
                         </Grid>
                     </Grid>
                 </DialogContent>
-                <DialogActions sx={{ p: 2.5, bgcolor: grey[50] }}>
-                    <Button onClick={onClose} variant="outlined" color="inherit">Cancel</Button>
+                <DialogActions sx={{ p: 3.5, bgcolor: '#f5f5f5', borderTop: '1px solid #eee' }}>
+                    <Button 
+                        onClick={onClose} 
+                        variant="text" 
+                        sx={{ color: 'text.secondary', fontWeight: 600, px: 3 }}
+                    >
+                        Discard
+                    </Button>
                     <Button 
                         type="submit" 
                         variant="contained" 
+                        size="large"
                         startIcon={initialData ? <SaveIcon /> : <AddIcon />}
-                        sx={{ px: 3 }}
+                        sx={{ 
+                            px: 5, 
+                            borderRadius: '12px', 
+                            boxShadow: theme.shadows[4],
+                            fontWeight: 600
+                        }}
                     >
-                        {initialData ? 'Save Changes' : 'Add Component'}
+                        {initialData ? 'Save Changes' : 'Confirm & Add'}
                     </Button>
                 </DialogActions>
             </form>

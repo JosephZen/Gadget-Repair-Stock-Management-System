@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, List, ListItem, ListItemText, IconButton, Typography, Box, Link } from '@mui/material';
 import { Delete as DeleteIcon, OpenInNew as OpenInNewIcon } from '@mui/icons-material';
 import api from '../services/api';
+import { showErrorAlert, showSuccessAlert, showConfirmDelete } from '../utils/alerts';
 
 const SupplierLinksDialog = ({ isOpen, onClose, component }) => {
     const [links, setLinks] = useState([]);
@@ -37,22 +38,26 @@ const SupplierLinksDialog = ({ isOpen, onClose, component }) => {
         e.preventDefault();
         try {
             await api.post(`/components/${component.id}/links`, { supplier_name: supplierName, link_url: linkUrl });
+            showSuccessAlert('Added', 'Supplier link has been successfully saved.');
             setSupplierName('');
             setLinkUrl('');
             fetchLinks();
         } catch (err) {
             console.error("Failed to add link", err);
-            alert("Failed to save supplier link");
+            showErrorAlert('Error', 'Failed to save supplier link.');
         }
     };
 
     const handleDeleteLink = async (linkId) => {
-        if (!window.confirm("Delete this link?")) return;
+        const confirmed = await showConfirmDelete("Remove link?", "This will delete the supplier reference.");
+        if (!confirmed) return;
         try {
             await api.delete(`/components/links/${linkId}`);
+            showSuccessAlert('Deleted', 'Supplier link removed.');
             fetchLinks();
         } catch (err) {
             console.error("Failed to delete link", err);
+            showErrorAlert('Error', 'Failed to remove link.');
         }
     };
 

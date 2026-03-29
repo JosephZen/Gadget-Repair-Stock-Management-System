@@ -1,1 +1,29 @@
+/* Premium Swift Design System */
 
+/* Ensure SweetAlert2 is always on top of MUI Dialogs (MUI uses 1300) */
+.swal2-container {
+    z-index: 9999 !important;
+}
+
+/* Custom Swift Popup Refinements */
+.premium-swal-popup {
+    font-family: 'Roboto', 'Inter', sans-serif !important;
+    border-radius: 20px !important;
+    padding: 1.5rem !important;
+}
+
+.premium-swal-confirm {
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 12px 30px !important;
+}
+
+.premium-swal-cancel {
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 12px 30px !important;
+}

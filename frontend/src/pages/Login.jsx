@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { Container, Box, Typography, TextField, Button, Paper, Link } from '@mui/material';
 import { AuthContext } from '../context/AuthContext';
+import { showSuccessAlert, showErrorAlert } from '../utils/alerts';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -15,9 +16,10 @@ const Login = () => {
         setError('');
         const success = await login(email, password);
         if (success) {
+            showSuccessAlert('Successfully Logged In', 'Welcome back!');
             navigate('/');
         } else {
-            setError('Invalid email or password');
+            showErrorAlert('Login Failed', 'Invalid email or password');
         }
     };
 
@@ -33,7 +35,6 @@ const Login = () => {
                             value={email} onChange={e => setEmail(e.target.value)} />
                         <TextField margin="normal" required fullWidth label="Password" type="password"
                             value={password} onChange={e => setPassword(e.target.value)} />
-                        {error && <Typography color="error" variant="body2">{error}</Typography>}
                         <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                             Sign In
                         </Button>

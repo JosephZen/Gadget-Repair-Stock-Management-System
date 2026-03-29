@@ -1,18 +1,19 @@
-import { 
-    Drawer, Box, List, ListItem, ListItemButton, 
-    ListItemIcon, ListItemText, Divider, Typography, 
-    IconButton, alpha, useTheme 
+import {
+    Drawer, Box, List, ListItem, ListItemButton,
+    ListItemIcon, ListItemText, Divider, Typography,
+    IconButton, alpha, useTheme
 } from '@mui/material';
-import { 
-    Dashboard as DashboardIcon, 
-    Person as ProfileIcon, 
-    Construction as SolderingIcon, 
-    VideoLibrary as VideoIcon, 
+import {
+    Dashboard as DashboardIcon,
+    Person as ProfileIcon,
+    Construction as SolderingIcon,
+    VideoLibrary as VideoIcon,
     FolderSpecial as FolderIcon,
     ChevronLeft as ChevronLeftIcon
 } from '@mui/icons-material';
 import { grey } from '@mui/material/colors';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { showInfoAlert } from '../utils/alerts';
 
 const Sidebar = ({ open, onClose }) => {
     const theme = useTheme();
@@ -28,9 +29,9 @@ const Sidebar = ({ open, onClose }) => {
         { text: 'Project Folders', icon: <FolderIcon />, path: '/folders', future: true },
     ];
 
-    const handleNavigation = (path, future) => {
+    const handleNavigation = (path, future, text) => {
         if (future) {
-            alert('This module is coming soon in a future update!');
+            showInfoAlert(text);
         } else {
             navigate(path);
             onClose();
@@ -51,20 +52,20 @@ const Sidebar = ({ open, onClose }) => {
                 }
             }}
         >
-            <Box sx={{ 
-                p: 2, 
-                display: 'flex', 
-                alignItems: 'center', 
+            <Box sx={{
+                p: 2,
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'space-between',
                 bgcolor: 'primary.main',
                 color: 'white'
             }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    Menu
-                </Typography>
                 <IconButton onClick={onClose} sx={{ color: 'white' }}>
                     <ChevronLeftIcon />
                 </IconButton>
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    Other Projects
+                </Typography>
             </Box>
 
             <List sx={{ p: 2 }}>
@@ -73,8 +74,8 @@ const Sidebar = ({ open, onClose }) => {
                         <Divider key={`divider-${index}`} sx={{ my: 1.5 }} />
                     ) : (
                         <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
-                            <ListItemButton 
-                                onClick={() => handleNavigation(item.path, item.future)}
+                            <ListItemButton
+                                onClick={() => handleNavigation(item.path, item.future, item.text)}
                                 selected={location.pathname === item.path}
                                 sx={{
                                     borderRadius: 2,
@@ -96,16 +97,16 @@ const Sidebar = ({ open, onClose }) => {
                                 <ListItemIcon sx={{ minWidth: 40 }}>
                                     {item.icon}
                                 </ListItemIcon>
-                                <ListItemText 
-                                    primary={item.text} 
-                                    primaryTypographyProps={{ 
+                                <ListItemText
+                                    primary={item.text}
+                                    primaryTypographyProps={{
                                         fontWeight: location.pathname === item.path ? 'bold' : 'medium',
                                         variant: 'body2'
                                     }}
                                 />
                                 {item.future && (
-                                    <Typography variant="caption" sx={{ 
-                                        color: 'text.secondary', 
+                                    <Typography variant="caption" sx={{
+                                        color: 'text.secondary',
                                         fontStyle: 'italic',
                                         fontSize: '0.65rem',
                                         bgcolor: grey[100],

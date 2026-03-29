@@ -1,5 +1,11 @@
 import { pool } from '../db.js';
 
+const normalizeInput = (val) => {
+    if (val === null || val === undefined) return null;
+    const trimmed = String(val).trim();
+    return trimmed === '' ? null : trimmed;
+};
+
 export const getComponentById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -16,8 +22,35 @@ export const getComponentById = async (req, res) => {
 };
 
 export const addComponent = async (req, res) => {
-    const { brand, model, category, condition, description, stock_quantity, image_url } = req.body;
+    let { brand, model, category, condition, description, stock_quantity, image_url } = req.body;
+    
+    // Normalize string inputs (trim + empty -> null)
+    brand = normalizeInput(brand);
+    model = normalizeInput(model);
+    category = normalizeInput(category);
+    condition = normalizeInput(condition);
+    description = normalizeInput(description);
+
     try {
+        // ✅ Refined Strict Fail-safe: Check Brand, Model, Condition, and Description (normalized)
+        const existingResult = await pool.query(
+            `SELECT id FROM components 
+             WHERE LOWER(brand) IS NOT DISTINCT FROM LOWER($1) 
+               AND LOWER(model) IS NOT DISTINCT FROM LOWER($2) 
+               AND LOWER(condition) IS NOT DISTINCT FROM LOWER($3) 
+               AND LOWER(description) IS NOT DISTINCT FROM LOWER($4)`,
+            [brand, model, condition, description]
+        );
+
+        console.log(`[Duplicate Check] Brand: ${brand}, Model: ${model}, Desc: ${description}, Cond: ${condition} - Match Found: ${existingResult.rows.length > 0}`);
+
+        if (existingResult.rows.length > 0) {
+            return res.status(409).json({ 
+                success: false, 
+                message: "Duplicate Entry: A part with identical Brand, Model, Condition, and Description already exists." 
+            });
+        }
+
         const newComponent = await pool.query(
             `INSERT INTO components (brand, model, category, condition, description, stock_quantity, image_url) 
              VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
@@ -32,8 +65,34 @@ export const addComponent = async (req, res) => {
 
 export const updateComponent = async (req, res) => {
     const { id } = req.params;
-    const { brand, model, category, condition, description, stock_quantity, image_url } = req.body;
+    let { brand, model, category, condition, description, stock_quantity, image_url } = req.body;
+    
+    // Normalize string inputs (trim + empty -> null)
+    brand = normalizeInput(brand);
+    model = normalizeInput(model);
+    category = normalizeInput(category);
+    condition = normalizeInput(condition);
+    description = normalizeInput(description);
+
     try {
+        // ✅ Fail-safe: Prevent update from creating a duplicate of ANOTHER part (normalized)
+        const existingResult = await pool.query(
+            `SELECT id FROM components 
+             WHERE LOWER(brand) IS NOT DISTINCT FROM LOWER($1) 
+               AND LOWER(model) IS NOT DISTINCT FROM LOWER($2) 
+               AND LOWER(condition) IS NOT DISTINCT FROM LOWER($3) 
+               AND LOWER(description) IS NOT DISTINCT FROM LOWER($4)
+               AND id != $5`,
+            [brand, model, condition, description, id]
+        );
+
+        if (existingResult.rows.length > 0) {
+            return res.status(409).json({ 
+                success: false, 
+                message: "Duplicate Update: Another part with identical Brand, Model, Condition, and Description already exists." 
+            });
+        }
+
         const updatedComponent = await pool.query(
             `UPDATE components SET brand = $1, model = $2, category = $3, condition = $4, description = $5, stock_quantity = $6, image_url = COALESCE($7, image_url) WHERE id = $8 RETURNING *`,
             [brand, model, category, condition, description, stock_quantity, image_url || null, id]

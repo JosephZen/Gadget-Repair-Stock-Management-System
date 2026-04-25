@@ -12,7 +12,9 @@ import {
     Inventory as InventoryIcon,
     Refresh as RefreshIcon,
     ErrorOutline as ErrorIcon,
-    CameraAlt as CameraIcon
+    CameraAlt as CameraIcon,
+    VisibilityOff as VisibilityOffIcon,
+    PlayArrow as PlayIcon
 } from '@mui/icons-material';
 import { grey } from '@mui/material/colors';
 import api from '../services/api';
@@ -26,16 +28,16 @@ const ScannerModal = ({ open, onClose }) => {
     const [cameraReady, setCameraReady] = useState(false);
     const [cameras, setCameras] = useState([]);
     const [selectedCameraId, setSelectedCameraId] = useState('');
+    const [isCameraManualStop, setIsCameraManualStop] = useState(false);
     const scannerRef = useRef(null);
     const containerId = "qr-reader-modal";
 
     useEffect(() => {
-        if (!open) {
+        if (!open || isCameraManualStop) {
             handleStop();
             return;
         }
 
-        // Delay initialization to ensure the DOM element is ready for the scanner
         const timer = setTimeout(() => {
             handleStart();
         }, 300);
@@ -44,7 +46,7 @@ const ScannerModal = ({ open, onClose }) => {
             clearTimeout(timer);
             handleStop();
         };
-    }, [open]);
+    }, [open, isCameraManualStop]);
 
     const handleStart = async (deviceIdToUse = null) => {
         try {
@@ -89,6 +91,7 @@ const ScannerModal = ({ open, onClose }) => {
             );
             
             setCameraReady(true);
+            setIsCameraManualStop(false);
         } catch (err) {
             console.error("Camera Start Error:", err);
             setError("Could not access camera. Please check permissions.");
@@ -97,9 +100,16 @@ const ScannerModal = ({ open, onClose }) => {
 
     const handleCameraChange = async (event) => {
         const newDeviceId = event.target.value;
-        setSelectedCameraId(newDeviceId);
-        await handleStop();
-        handleStart(newDeviceId);
+        if (newDeviceId === 'off') {
+            setSelectedCameraId('off');
+            setIsCameraManualStop(true);
+            await handleStop();
+        } else {
+            setSelectedCameraId(newDeviceId);
+            setIsCameraManualStop(false);
+            await handleStop();
+            handleStart(newDeviceId);
+        }
     };
 
     const handleStop = async () => {
@@ -144,6 +154,7 @@ const ScannerModal = ({ open, onClose }) => {
         setScannedId(null);
         setComponentData(null);
         setError('');
+        setIsCameraManualStop(false);
         handleStart();
     };
 
@@ -183,17 +194,20 @@ const ScannerModal = ({ open, onClose }) => {
 
             <DialogContent sx={{ p: 0, position: 'relative', minHeight: 400, bgcolor: '#f5f5f5', display: 'flex', flexDirection: 'column' }}>
                 {/* Camera Selection Dropdown */}
-                {!scannedId && cameras.length > 1 && (
+                {!scannedId && (
                     <Box sx={{ p: 2, bgcolor: 'white', borderBottom: '1px solid', borderColor: 'divider' }}>
                         <FormControl fullWidth size="small">
-                            <InputLabel id="camera-select-label">Switch Camera</InputLabel>
+                            <InputLabel id="camera-select-label">Select Camera</InputLabel>
                             <Select
                                 labelId="camera-select-label"
-                                value={selectedCameraId}
-                                label="Switch Camera"
+                                value={isCameraManualStop ? 'off' : (selectedCameraId || (cameras[0]?.id || ''))}
+                                label="Select Camera"
                                 onChange={handleCameraChange}
-                                startIcon={<CameraIcon />}
+                                startAdornment={<CameraIcon sx={{ mr: 1, color: 'action.active' }} />}
                             >
+                                <MenuItem value="off">
+                                    <em>None / Turn Off</em>
+                                </MenuItem>
                                 {cameras.map((camera) => (
                                     <MenuItem key={camera.id} value={camera.id}>
                                         {camera.label || `Camera ${camera.id}`}
@@ -206,18 +220,37 @@ const ScannerModal = ({ open, onClose }) => {
 
                 {/* Scanner Viewport */}
                 {!scannedId && (
-                    <Box sx={{ position: 'relative', flex: 1, width: '100%', minHeight: 300 }}>
-                         <Box 
-                            id={containerId} 
-                            sx={{ 
-                                width: '100%', 
-                                height: '100%',
-                                '& video': { objectFit: 'cover' }
-                            }} 
-                        />
+                    <Box sx={{ position: 'relative', flex: 1, width: '100%', minHeight: 300, bgcolor: 'black' }}>
+                         {isCameraManualStop ? (
+                             <Box sx={{ 
+                                 height: 400, display: 'flex', flexDirection: 'column', 
+                                 alignItems: 'center', justifyContent: 'center', color: 'white',
+                                 bgcolor: grey[900]
+                             }}>
+                                 <VisibilityOffIcon sx={{ fontSize: 60, mb: 2, opacity: 0.5 }} />
+                                 <Typography variant="body1">Camera is paused</Typography>
+                                 <Button 
+                                    variant="contained" 
+                                    sx={{ mt: 2 }} 
+                                    onClick={() => setIsCameraManualStop(false)}
+                                    startIcon={<PlayIcon />}
+                                 >
+                                     Resume Camera
+                                 </Button>
+                             </Box>
+                         ) : (
+                             <Box 
+                                id={containerId} 
+                                sx={{ 
+                                    width: '100%', 
+                                    height: '100%',
+                                    '& video': { objectFit: 'cover' }
+                                }} 
+                            />
+                         )}
                         
                         {/* Overlay Styling */}
-                        {cameraReady && (
+                        {cameraReady && !isCameraManualStop && (
                             <Box sx={{ 
                                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
